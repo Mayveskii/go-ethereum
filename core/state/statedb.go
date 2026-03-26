@@ -1407,7 +1407,11 @@ func (s *StateDB) commitAndFlush(block uint64, deleteEmptyObjects bool, noStorag
 
 	// The reader update must be performed as the final step, otherwise,
 	// the new state would not be visible before db.commit.
-	s.reader, _ = s.db.Reader(s.originalRoot)
+	reader, readerErr := s.db.Reader(s.originalRoot)
+	if readerErr != nil {
+		log.Error("Failed to create state reader after commit", "root", s.originalRoot, "err", readerErr)
+	}
+	s.reader = reader
 	return ret, err
 }
 
